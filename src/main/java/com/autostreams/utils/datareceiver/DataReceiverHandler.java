@@ -3,7 +3,7 @@
  * https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example/securechat
  */
 
-package com.klungerbo.streams.utils.datareceiver;
+package com.autostreams.utils.datareceiver;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,7 +13,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +36,7 @@ public class DataReceiverHandler extends SimpleChannelInboundHandler<String> {
     /**
      * Create a DataReceiverHandler instance with injected KafkaPrototypeProducer.
      */
-    public DataReceiverHandler(
-        @NotNull StreamsServer<String> streamsServer,
-        @NotNull DataReceiver dataReceiver) {
+    public DataReceiverHandler(StreamsServer<String> streamsServer, DataReceiver dataReceiver) {
         this.streamsServer = streamsServer;
         this.dataReceiver = dataReceiver;
     }
@@ -51,7 +48,7 @@ public class DataReceiverHandler extends SimpleChannelInboundHandler<String> {
      * @throws UnknownHostException if the host could not be determined by its IP.
      */
     @Override
-    public void handlerAdded(@NotNull ChannelHandlerContext context) throws UnknownHostException {
+    public void handlerAdded(ChannelHandlerContext context) throws UnknownHostException {
         logger.debug("Adding channel: {}", context.channel().id());
         context.writeAndFlush("Connected to: " + InetAddress.getLocalHost().getHostName() + "\n");
         channels.add(context.channel());
@@ -68,7 +65,7 @@ public class DataReceiverHandler extends SimpleChannelInboundHandler<String> {
      * @param context the interaction context to the pipeline.
      */
     @Override
-    public void handlerRemoved(@NotNull ChannelHandlerContext context) {
+    public void handlerRemoved(ChannelHandlerContext context) {
         logger.debug("Removing channel: {}", context.channel().id());
         channels.remove(context.channel());
 
@@ -85,7 +82,7 @@ public class DataReceiverHandler extends SimpleChannelInboundHandler<String> {
      * @param message the message received from the client.
      */
     @Override
-    protected void channelRead0(@NotNull ChannelHandlerContext context, @NotNull String message) {
+    protected void channelRead0(ChannelHandlerContext context, String message) {
         logger.info("Received message: {}", message);
 
         if (DISCONNECT_COMMAND.equalsIgnoreCase(message)) {
@@ -102,7 +99,7 @@ public class DataReceiverHandler extends SimpleChannelInboundHandler<String> {
      *
      * @param channel the channel to close.
      */
-    private void closeChannel(@NotNull Channel channel) {
+    private void closeChannel(Channel channel) {
         logger.info("Closing channel: {}", channel.id());
 
         channel.parent().writeAndFlush("Disconnected\n");
@@ -143,7 +140,7 @@ public class DataReceiverHandler extends SimpleChannelInboundHandler<String> {
      * @param cause   the cause of the exception.
      */
     @Override
-    public void exceptionCaught(@NotNull ChannelHandlerContext context, @NotNull Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
         cause.printStackTrace();
         context.close();
     }
