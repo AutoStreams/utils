@@ -3,7 +3,7 @@
  * https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example/securechat
  */
 
-package com.klungerbo.streams.utils.datareceiver;
+package com.autostreams.utils.datareceiver;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -12,7 +12,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,7 @@ public class DataReceiver {
     private EventLoopGroup masterGroup;
     private EventLoopGroup workerGroup;
 
-    public DataReceiver(@NotNull StreamsServer<String> streamsServer) {
+    public DataReceiver(StreamsServer<String> streamsServer) {
         this.streamsServer = streamsServer;
     }
 

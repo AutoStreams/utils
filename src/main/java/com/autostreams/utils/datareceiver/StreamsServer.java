@@ -1,4 +1,4 @@
-package com.klungerbo.streams.utils.datareceiver;
+package com.autostreams.utils.datareceiver;
 
 /**
  * Interface for Streams server.
