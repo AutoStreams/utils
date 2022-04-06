@@ -116,7 +116,7 @@ public final class DataProvider {
     }
 
     /**
-     * sets the number of messages per second.
+     * Sets the number of messages per second.
      * NOTE: Needs to be greater than 0.
      *
      * @param messagesPerSecond number of messages per second
