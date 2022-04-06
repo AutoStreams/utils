@@ -31,6 +31,7 @@ public final class DataProvider {
     private EventLoopGroup group = new NioEventLoopGroup();
     private boolean running = true;
     private ChannelFuture channelFuture = null;
+    private int messagesPerSecond = 1;
 
     /**
      * Data provider constructor.
@@ -115,23 +116,35 @@ public final class DataProvider {
     }
 
     /**
+     * sets the number of messages per second.
+     * NOTE: Needs to be greater than 0.
+     *
+     * @param messagesPerSecond number of messages per second
+     */
+    public void setMessagesPerSecond(int messagesPerSecond) {
+        if (messagesPerSecond <= 0) {
+            throw new IllegalArgumentException("Number of messages per second needs to be above 0");
+        }
+
+        this.messagesPerSecond = messagesPerSecond;
+    }
+
+    /**
      * Execute the DataProducer.
      */
     public void run() {
         while (this.running) {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                logger.error("Thread interrupted");
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
-
             String line = getRandomString();
-            logger.info("String created: {}", line);
 
             if (this.channelFuture != null) {
                 this.channelFuture = this.channelFuture.channel().writeAndFlush(line + "\r\n");
+            }
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(1000 / messagesPerSecond);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
     }
