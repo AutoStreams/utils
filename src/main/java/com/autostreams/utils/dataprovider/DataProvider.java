@@ -135,7 +135,7 @@ public final class DataProvider {
     public void run() {
         while (this.running) {
             String line = getRandomString();
-            logger.info("String created: {}", line);
+            logger.trace("String created: {}", line);
 
             if (this.channelFuture != null) {
                 this.channelFuture = this.channelFuture.channel().writeAndFlush(line + "\r\n");

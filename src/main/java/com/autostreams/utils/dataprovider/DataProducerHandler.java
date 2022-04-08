@@ -34,7 +34,7 @@ public class DataProducerHandler extends SimpleChannelInboundHandler<String> {
      */
     @Override
     public void channelRead0(ChannelHandlerContext context, String message) {
-        logger.info("Received message: {}", message);
+        logger.debug("Received message: {}", message);
 
         if (SHUTDOWN_COMMAND.equalsIgnoreCase(message)) {
             this.dataProvider.shutdown();
