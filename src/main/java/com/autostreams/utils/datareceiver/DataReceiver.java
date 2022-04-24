@@ -23,32 +23,50 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public class DataReceiver {
-    private static final int PORT = Integer.parseInt(System.getProperty("port", "8992"));
+    private final int port;
     private final Logger logger = LoggerFactory.getLogger(DataReceiver.class);
     private final StreamsServer<String> streamsServer;
     private ChannelFuture channelFuture;
-    private EventLoopGroup masterGroup;
-    private EventLoopGroup workerGroup;
+    private EventLoopGroup masterGroup = new NioEventLoopGroup(1);
+    private EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    public DataReceiver(StreamsServer<String> streamsServer) {
+    @SuppressWarnings("unused")
+    public DataReceiver(StreamsServer<String> streamsServer, int port) {
         this.streamsServer = streamsServer;
+        this.port = port;
     }
 
     /**
      * Execute the data receiver to start listening for messages.
      */
+    @SuppressWarnings("unused")
     public void run() {
-        masterGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup();
+        ServerBootstrap bootstrap = createServerBootstrap();
+        channelFuture = bootstrap.bind(port);
 
+        closeFutureAndShutdown();
+    }
+
+    /**
+     * Shutdown the data receiver.
+     */
+    public void shutdown() {
+        shutdownChannelFuture();
+        shutdownWorkerGroup();
+        shutdownMasterGroup();
+    }
+
+    private ServerBootstrap createServerBootstrap() {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(masterGroup, workerGroup)
+        bootstrap.group(this.masterGroup, this.workerGroup)
             .channel(NioServerSocketChannel.class)
             .handler(new LoggingHandler(LogLevel.INFO))
             .childHandler(new DataReceiverInitializer(streamsServer, this));
 
-        channelFuture = bootstrap.bind(PORT);
+        return bootstrap;
+    }
 
+    private void closeFutureAndShutdown() {
         try {
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -60,22 +78,23 @@ public class DataReceiver {
         }
     }
 
-    /**
-     * Shutdown the data receiver.
-     */
-    public void shutdown() {
+    private void shutdownChannelFuture() {
         if (channelFuture != null) {
             logger.debug("Closing channel future");
             channelFuture.channel().close();
             channelFuture = null;
         }
+    }
 
+    private void shutdownWorkerGroup() {
         if (workerGroup != null) {
             logger.debug("Closing worker group");
             workerGroup.shutdownGracefully();
             workerGroup = null;
         }
+    }
 
+    private void shutdownMasterGroup() {
         if (masterGroup != null) {
             logger.debug("Closing master group");
             masterGroup.shutdownGracefully();
