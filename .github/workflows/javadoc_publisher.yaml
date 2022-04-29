@@ -1,0 +1,19 @@
+name: Deploy Javadoc Master
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy JavaDoc 🚀
+        uses: MathieuSoysal/Javadoc-publisher.yml@v2.0.4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          javadoc-branch: gh-pages 
+          java-version: 17
+          target-folder: javadoc 
