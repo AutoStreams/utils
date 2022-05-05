@@ -1,6 +1,6 @@
 /**
  * Code adapted from:
- * https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example/securechat
+ * <a href="https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example/securechat">https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example/securechat</a>.
  */
 
 package com.autostreams.utils.datareceiver;
@@ -37,18 +37,21 @@ public class DataReceiver {
     /**
      * Execute the data receiver to start listening for messages.
      */
+    @SuppressWarnings("unused")
     public void run() {
         masterGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
 
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(masterGroup, workerGroup)
-            .channel(NioServerSocketChannel.class)
-            .handler(new LoggingHandler(LogLevel.INFO))
-            .childHandler(new DataReceiverInitializer(streamsServer, this));
-
+        ServerBootstrap bootstrap = createServerBootstrap();
         channelFuture = bootstrap.bind(PORT);
 
+        receiveMessages();
+    }
+
+    /**
+     * Start receiving messages.
+     */
+    private void receiveMessages() {
         try {
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -61,21 +64,55 @@ public class DataReceiver {
     }
 
     /**
+     * Create a new server bootstrap from predefined configurations.
+     *
+     * @return the newly created bootstrapped server
+     */
+    private ServerBootstrap createServerBootstrap() {
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(masterGroup, workerGroup)
+          .channel(NioServerSocketChannel.class)
+          .handler(new LoggingHandler(LogLevel.INFO))
+          .childHandler(new DataReceiverInitializer(streamsServer, this));
+
+        return bootstrap;
+    }
+
+    /**
      * Shutdown the data receiver.
      */
     public void shutdown() {
+        shutdownChannelFuture();
+        shutdownWorkerGroup();
+        shutdownMasterGroup();
+    }
+
+    /**
+     * Shutdown the channel future used for message listening.
+     */
+    private void shutdownChannelFuture() {
         if (channelFuture != null) {
             logger.debug("Closing channel future");
             channelFuture.channel().close();
             channelFuture = null;
         }
+    }
 
+    /**
+     * Shutdown the worker group
+     */
+    private void shutdownWorkerGroup() {
         if (workerGroup != null) {
             logger.debug("Closing worker group");
             workerGroup.shutdownGracefully();
             workerGroup = null;
         }
+    }
 
+    /**
+     * Shutdown the master group
+     */
+    private void shutdownMasterGroup() {
         if (masterGroup != null) {
             logger.debug("Closing master group");
             masterGroup.shutdownGracefully();
