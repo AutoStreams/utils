@@ -2,6 +2,9 @@
 
 target
 .idea
+.classpath
+.project
+.settings
 
 .classpath
 .project
