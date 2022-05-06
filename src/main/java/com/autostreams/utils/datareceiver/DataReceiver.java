@@ -23,15 +23,22 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public class DataReceiver {
-    private static final int PORT = Integer.parseInt(System.getProperty("port", "8992"));
+    private int port = Integer.parseInt(System.getProperty("port", "8992"));
     private final Logger logger = LoggerFactory.getLogger(DataReceiver.class);
     private final StreamsServer<String> streamsServer;
     private ChannelFuture channelFuture;
     private EventLoopGroup masterGroup;
     private EventLoopGroup workerGroup;
 
+    @SuppressWarnings("unused")
     public DataReceiver(StreamsServer<String> streamsServer) {
         this.streamsServer = streamsServer;
+    }
+
+    @SuppressWarnings("unused")
+    public DataReceiver(StreamsServer<String> streamsServer, int port) {
+        this.streamsServer = streamsServer;
+        this.port = port;
     }
 
     /**
@@ -43,7 +50,7 @@ public class DataReceiver {
         workerGroup = new NioEventLoopGroup();
 
         ServerBootstrap bootstrap = createServerBootstrap();
-        channelFuture = bootstrap.bind(PORT);
+        channelFuture = bootstrap.bind(this.port);
 
         receiveMessages();
     }
